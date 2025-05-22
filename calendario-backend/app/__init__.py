@@ -1,0 +1,1 @@
+#vacio pero necesario para que Python reconozca 'app' como un paquete :)

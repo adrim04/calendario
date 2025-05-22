@@ -12,6 +12,7 @@
             type="text" 
             required
             placeholder="Título del evento"
+            :disabled="loading"
           >
         </div>
         
@@ -23,6 +24,7 @@
               v-model="formData.startDate" 
               type="date" 
               required
+              :disabled="loading"
             >
           </div>
           
@@ -33,6 +35,7 @@
               v-model="formData.startTime" 
               type="time" 
               required
+              :disabled="loading"
             >
           </div>
         </div>
@@ -45,6 +48,7 @@
               v-model="formData.endDate" 
               type="date" 
               required
+              :disabled="loading"
             >
           </div>
           
@@ -55,6 +59,7 @@
               v-model="formData.endTime" 
               type="time" 
               required
+              :disabled="loading"
             >
           </div>
         </div>
@@ -65,6 +70,7 @@
             id="event-color" 
             v-model="formData.color" 
             type="color"
+            :disabled="loading"
           >
         </div>
         
@@ -75,18 +81,19 @@
             v-model="formData.description" 
             rows="3"
             placeholder="Descripción del evento"
+            :disabled="loading"
           ></textarea>
         </div>
         
         <div class="form-actions">
-          <button type="button" class="btn btn-cancel" @click="$emit('cancel')">
+          <button type="button" class="btn btn-cancel" @click="$emit('cancel')" :disabled="loading">
             Cancelar
           </button>
-          <button type="button" v-if="!isNewEvent" class="btn btn-delete" @click="confirmDelete">
+          <button type="button" v-if="!isNewEvent" class="btn btn-delete" @click="confirmDelete" :disabled="loading">
             Eliminar
           </button>
-          <button type="submit" class="btn btn-save">
-            Guardar
+          <button type="submit" class="btn btn-save" :disabled="loading">
+            {{ loading ? 'Guardando...' : 'Guardar' }}
           </button>
         </div>
       </form>
@@ -101,6 +108,10 @@ export default {
     event: {
       type: Object,
       default: null
+    },
+    loading: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -119,7 +130,7 @@ export default {
   },
   computed: {
     isNewEvent() {
-      return !this.event || !this.event.title;
+      return !this.event || !this.event.id;
     }
   },
   watch: {
@@ -130,7 +141,7 @@ export default {
           const end = new Date(newEvent.end);
           
           this.formData = {
-            id: newEvent.id || Date.now().toString(),
+            id: newEvent.id || '',
             title: newEvent.title || '',
             startDate: this.formatDate(start),
             startTime: this.formatTime(start),
@@ -226,6 +237,11 @@ export default {
         outline: none;
         border-color: #42b983;
       }
+      
+      &:disabled {
+        background-color: #f8f9fa;
+        cursor: not-allowed;
+      }
     }
   }
   
@@ -250,11 +266,16 @@ export default {
       font-weight: bold;
       cursor: pointer;
       
+      &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+      
       &.btn-cancel {
         background-color: #f8f9fa;
         color: #333;
         
-        &:hover {
+        &:hover:not(:disabled) {
           background-color: #e2e6ea;
         }
       }
@@ -263,7 +284,7 @@ export default {
         background-color: #dc3545;
         color: white;
         
-        &:hover {
+        &:hover:not(:disabled) {
           background-color: darken(#dc3545, 10%);
         }
       }
@@ -272,7 +293,7 @@ export default {
         background-color: #42b983;
         color: white;
         
-        &:hover {
+        &:hover:not(:disabled) {
           background-color: darken(#42b983, 10%);
         }
       }

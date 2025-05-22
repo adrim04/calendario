@@ -1,10 +1,18 @@
 <template>
   <div class="app-container">
-    <NavBar />
+    <NavBar @create-event="handleCreateEvent" />
     <main class="main-content">
       <div class="calendar-container">
         <h1>Mi Calendario</h1>
+        <div v-if="loading" class="loading-indicator">
+          <p>Cargando eventos...</p>
+        </div>
+        <div v-if="error" class="error-message">
+          <p>{{ error }}</p>
+          <button @click="fetchEvents" class="btn btn-retry">Reintentar</button>
+        </div>
         <Calendar 
+          v-if="!loading && !error"
           ref="calendar"
           :events="events" 
           @event-selected="handleEventSelected"
@@ -18,6 +26,7 @@
         @save="saveEvent" 
         @cancel="cancelEvent"
         @delete="deleteEvent"
+        :loading="formLoading"
       />
     </main>
     <Footer />
@@ -25,16 +34,15 @@
 </template>
 
 <script>
-//import HelloWorld from './components/HelloWorld.vue'
 import NavBar from './components/NavBar.vue'
 import Footer from './components/Footer.vue'
 import Calendar from './components/Calendar.vue'
 import EventForm from './components/EventForm.vue'
+import api from './services/api'
 
 export default {
   name: 'App',
   components: {
-    //HelloWorld,
     NavBar,
     Footer,
     Calendar,
@@ -44,29 +52,33 @@ export default {
     return {
       events: [],
       showEventForm: false,
-      selectedEvent: null
+      selectedEvent: null,
+      loading: true,
+      formLoading: false,
+      error: null
     }
   },
-  created() {
-    // Cargar eventos desde localStorage al iniciar
-    this.loadEventsFromStorage();
+  async created() {
+    // Cargar eventos desde la API al iniciar
+    await this.fetchEvents();
   },
   methods: {
-    loadEventsFromStorage() {
-      const savedEvents = localStorage.getItem('calendar-events');
-      if (savedEvents) {
-        try {
-          const parsedEvents = JSON.parse(savedEvents);
-          // Convertir las fechas de string a objetos Date
-          this.events = parsedEvents.map(event => ({
-            ...event,
-            start: new Date(event.start),
-            end: new Date(event.end)
-          }));
-        } catch (e) {
-          console.error('Error parsing events from localStorage', e);
-          this.events = [];
-        }
+    async fetchEvents() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const events = await api.getEvents();
+        // Convertir las fechas de string a objetos Date
+        this.events = events.map(event => ({
+          ...event,
+          start: new Date(event.start),
+          end: new Date(event.end)
+        }));
+      } catch (error) {
+        console.error('Error al cargar eventos:', error);
+        this.error = 'No se pudieron cargar los eventos. Por favor, intenta de nuevo más tarde.';
+      } finally {
+        this.loading = false;
       }
     },
     handleEventSelected(eventInfo) {
@@ -83,7 +95,6 @@ export default {
     handleDateSelected(info) {
       // Crear un nuevo evento en la fecha seleccionada
       this.selectedEvent = {
-        id: Date.now().toString(), // ID temporal
         title: '',
         start: info.start,
         end: info.end || new Date(info.start.getTime() + 60 * 60 * 1000), // Por defecto 1 hora
@@ -92,50 +103,77 @@ export default {
       };
       this.showEventForm = true;
     },
-    saveEvent(eventData) {
-      // Verificar si el evento ya existe
-      const existingEventIndex = this.events.findIndex(e => e.id === eventData.id);
+    handleCreateEvent() {
+      // Crear un nuevo evento con la fecha actual
+      const now = new Date();
+      const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
       
-      // Crear una copia limpia del evento para evitar referencias circulares
-      const cleanEvent = {
-        id: eventData.id,
-        title: eventData.title,
-        start: new Date(eventData.start),
-        end: new Date(eventData.end),
-        description: eventData.description,
-        color: eventData.color
+      this.selectedEvent = {
+        title: '',
+        start: now,
+        end: oneHourLater,
+        description: '',
+        color: '#3788d8'
       };
-      
-      if (existingEventIndex >= 0) {
-        // Actualizar evento existente
-        this.events.splice(existingEventIndex, 1, cleanEvent);
-      } else {
-        // Agregar nuevo evento
-        this.events.push(cleanEvent);
-      }
-      
-      // Guardar en localStorage
-      this.saveEventsToStorage();
-      
-      this.showEventForm = false;
-      this.selectedEvent = null;
+      this.showEventForm = true;
     },
-    saveEventsToStorage() {
-      localStorage.setItem('calendar-events', JSON.stringify(this.events));
+    async saveEvent(eventData) {
+      this.formLoading = true;
+      try {
+        // Preparar datos para la API
+        const apiEventData = {
+          title: eventData.title,
+          start: eventData.start,
+          end: eventData.end,
+          description: eventData.description || "",
+          color: eventData.color
+        };
+        
+        if (eventData.id) {
+          // Actualizar evento existente
+          await api.updateEvent(eventData.id, apiEventData);
+        } else {
+          // Crear nuevo evento
+          await api.createEvent(apiEventData);
+        }
+        
+        // Recargar todos los eventos para mantener la sincronización
+        await this.fetchEvents();
+        
+        this.showEventForm = false;
+        this.selectedEvent = null;
+      } catch (error) {
+        console.error('Error al guardar evento:', error);
+        alert('Hubo un error al guardar el evento. Por favor, intenta de nuevo.');
+      } finally {
+        this.formLoading = false;
+      }
     },
     cancelEvent() {
       this.showEventForm = false;
       this.selectedEvent = null;
     },
-    deleteEvent(eventId) {
-      this.events = this.events.filter(event => event.id !== eventId);
-      this.saveEventsToStorage();
-      this.showEventForm = false;
-      this.selectedEvent = null;
+    async deleteEvent(eventId) {
+      if (!eventId) return;
+      
+      this.formLoading = true;
+      try {
+        await api.deleteEvent(eventId);
+        // Recargar eventos después de eliminar
+        await this.fetchEvents();
+        this.showEventForm = false;
+        this.selectedEvent = null;
+      } catch (error) {
+        console.error('Error al eliminar evento:', error);
+        alert('Hubo un error al eliminar el evento. Por favor, intenta de nuevo.');
+      } finally {
+        this.formLoading = false;
+      }
     }
   }
 }
 </script>
+
 
 <style lang="scss">
 body {
@@ -163,6 +201,51 @@ body {
   h1 {
     color: #2c3e50;
     margin-bottom: 20px;
+  }
+}
+
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  p {
+    color: #666;
+    font-size: 1.2rem;
+  }
+}
+
+.error-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  
+  p {
+    color: #dc3545;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+  
+  .btn-retry {
+    padding: 8px 16px;
+    background-color: #42b983;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    &:hover {
+      background-color: darken(#42b983, 10%);
+    }
   }
 }
 
