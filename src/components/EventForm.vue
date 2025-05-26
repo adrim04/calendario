@@ -1,102 +1,107 @@
 <template>
-  <div class="event-form-container">
-    <div class="event-form">
-      <h2>{{ isNewEvent ? 'Crear Evento' : 'Editar Evento' }}</h2>
+  <div class="event-form">
+    <div class="event-form-header">
+      <h3>{{ event ? 'Editar Evento' : 'Nuevo Evento' }}</h3>
+      <button @click="$emit('cancel')" class="btn-close">×</button>
+    </div>
+    
+    <form @submit.prevent="handleSubmit" class="event-form-body">
+      <div class="form-group">
+        <label for="event-title">Título *</label>
+        <input 
+          id="event-title" 
+          v-model="form.title" 
+          type="text" 
+          class="form-control"
+          :class="{ error: errors.title }"
+          @input="validateField('title')"
+          @blur="validateField('title')"
+          placeholder="Ingresa el título del evento"
+          maxlength="100"
+          autocomplete="off"
+        >
+        <span v-if="errors.title" class="error-message">{{ errors.title }}</span>
+      </div>
       
-      <form @submit.prevent="handleSubmit">
+      <div class="form-row">
         <div class="form-group">
-          <label for="event-title">Título</label>
+          <label for="event-date">Fecha *</label>
           <input 
-            id="event-title" 
-            v-model="formData.title" 
-            type="text" 
-            required
-            placeholder="Título del evento"
-            :disabled="loading"
+            id="event-date" 
+            v-model="form.date" 
+            type="date" 
+            class="form-control"
+            :class="{ error: errors.date }"
+            @change="validateField('date')"
+            :min="minDate"
+          >
+          <span v-if="errors.date" class="error-message">{{ errors.date }}</span>
+        </div>
+        
+        <div class="form-group">
+          <label for="event-time">Hora</label>
+          <input 
+            id="event-time" 
+            v-model="form.time" 
+            type="time" 
+            class="form-control"
           >
         </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label for="event-start">Fecha inicio</label>
-            <input 
-              id="event-start" 
-              v-model="formData.startDate" 
-              type="date" 
-              required
-              :disabled="loading"
-            >
-          </div>
-          
-          <div class="form-group">
-            <label for="event-start-time">Hora inicio</label>
-            <input 
-              id="event-start-time" 
-              v-model="formData.startTime" 
-              type="time" 
-              required
-              :disabled="loading"
-            >
-          </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Color del evento</label>
+        <div class="color-picker">
+          <div 
+            v-for="color in colorOptions" 
+            :key="color.value"
+            class="color-option"
+            :class="{ active: form.color === color.value }"
+            :style="{ backgroundColor: color.value }"
+            @click="form.color = color.value"
+            :title="color.name"
+          ></div>
         </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label for="event-end">Fecha fin</label>
-            <input 
-              id="event-end" 
-              v-model="formData.endDate" 
-              type="date" 
-              required
-              :disabled="loading"
-            >
-          </div>
-          
-          <div class="form-group">
-            <label for="event-end-time">Hora fin</label>
-            <input 
-              id="event-end-time" 
-              v-model="formData.endTime" 
-              type="time" 
-              required
-              :disabled="loading"
-            >
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="event-color">Color</label>
-          <input 
-            id="event-color" 
-            v-model="formData.color" 
-            type="color"
-            :disabled="loading"
-          >
-        </div>
-        
-        <div class="form-group">
-          <label for="event-description">Descripción</label>
-          <textarea 
-            id="event-description" 
-            v-model="formData.description" 
-            rows="3"
-            placeholder="Descripción del evento"
-            :disabled="loading"
-          ></textarea>
-        </div>
-        
-        <div class="form-actions">
-          <button type="button" class="btn btn-cancel" @click="$emit('cancel')" :disabled="loading">
-            Cancelar
-          </button>
-          <button type="button" v-if="!isNewEvent" class="btn btn-delete" @click="confirmDelete" :disabled="loading">
-            Eliminar
-          </button>
-          <button type="submit" class="btn btn-save" :disabled="loading">
-            {{ loading ? 'Guardando...' : 'Guardar' }}
-          </button>
-        </div>
-      </form>
+      </div>
+      
+      <div class="form-group">
+        <label for="event-description">Descripción</label>
+        <textarea 
+          id="event-description" 
+          v-model="form.description" 
+          class="form-control"
+          placeholder="Descripción opcional del evento"
+          maxlength="500"
+          rows="4"
+        ></textarea>
+        <small class="char-counter">{{ form.description.length }}/500</small>
+      </div>
+    </form>
+    
+    <div class="event-form-footer">
+      <button @click="$emit('cancel')" type="button" class="btn btn-secondary">
+        <font-awesome-icon :icon="['fas', 'times']" /> Cancelar
+      </button>
+      <button 
+        @click="handleDelete" 
+        v-if="event" 
+        type="button" 
+        class="btn btn-danger"
+        :disabled="saving"
+      >
+        <font-awesome-icon :icon="['fas', 'trash']" /> Eliminar
+      </button>
+      <button 
+        @click="handleSubmit" 
+        type="button" 
+        class="btn btn-primary"
+        :disabled="saving || !isFormValid"
+      >
+        <div v-if="saving" class="loading-spinner small"></div>
+        <span v-else>
+          <font-awesome-icon :icon="['fas', 'save']" /> Guardar
+        </span>
+      </button>
     </div>
   </div>
 </template>
@@ -109,194 +114,266 @@ export default {
       type: Object,
       default: null
     },
-    loading: {
-      type: Boolean,
-      default: false
+    selectedDate: {
+      type: String,
+      default: null
     }
   },
   data() {
     return {
-      formData: {
-        id: '',
+      saving: false,
+      form: {
         title: '',
-        startDate: '',
-        startTime: '',
-        endDate: '',
-        endTime: '',
-        description: '',
-        color: '#3788d8'
-      }
+        date: '',
+        time: '',
+        color: '#4a6fa5',
+        description: ''
+      },
+      errors: {},
+      colorOptions: [
+        { name: 'Azul', value: '#4a6fa5' },
+        { name: 'Verde', value: '#28a745' },
+        { name: 'Rojo', value: '#dc3545' },
+        { name: 'Amarillo', value: '#ffc107' },
+        { name: 'Púrpura', value: '#6f42c1' },
+        { name: 'Naranja', value: '#fd7e14' },
+        { name: 'Turquesa', value: '#20c997' },
+        { name: 'Rosa', value: '#e83e8c' }
+      ]
     }
   },
   computed: {
-    isNewEvent() {
-      return !this.event || !this.event.id;
+    isFormValid() {
+      return this.form.title.trim() && 
+             this.form.date && 
+             Object.keys(this.errors).length === 0
+    },
+    
+    minDate() {
+      return new Date().toISOString().split('T')[0]
     }
   },
   watch: {
     event: {
+      immediate: true,
       handler(newEvent) {
         if (newEvent) {
-          const start = new Date(newEvent.start);
-          const end = new Date(newEvent.end);
-          
-          this.formData = {
-            id: newEvent.id || '',
-            title: newEvent.title || '',
-            startDate: this.formatDate(start),
-            startTime: this.formatTime(start),
-            endDate: this.formatDate(end),
-            endTime: this.formatTime(end),
-            description: newEvent.description || '',
-            color: newEvent.color || '#3788d8'
-          };
+          this.form = { ...newEvent }
+        } else {
+          this.resetForm()
         }
-      },
-      immediate: true
+      }
+    },
+    
+    selectedDate: {
+      immediate: true,
+      handler(newDate) {
+        if (newDate && !this.event) {
+          this.form.date = newDate
+        }
+      }
     }
   },
   methods: {
-    formatDate(date) {
-      if (!date) return '';
-      return date.toISOString().split('T')[0];
-    },
-    formatTime(date) {
-      if (!date) return '';
-      return date.toTimeString().slice(0, 5);
-    },
-    handleSubmit() {
-      // Combinar fecha y hora
-      const startDateTime = new Date(`${this.formData.startDate}T${this.formData.startTime}`);
-      const endDateTime = new Date(`${this.formData.endDate}T${this.formData.endTime}`);
+    validateField(field) {
+      this.$delete(this.errors, field)
       
-      // Validar que la fecha de fin sea después de la fecha de inicio
-      if (endDateTime <= startDateTime) {
-        alert('La fecha de fin debe ser posterior a la fecha de inicio');
-        return;
+      switch (field) {
+        case 'title':
+          if (!this.form.title.trim()) {
+            this.$set(this.errors, 'title', 'El título es obligatorio')
+          } else if (this.form.title.length > 100) {
+            this.$set(this.errors, 'title', 'El título no puede exceder 100 caracteres')
+          } else if (this.form.title.length < 3) {
+            this.$set(this.errors, 'title', 'El título debe tener al menos 3 caracteres')
+          }
+          break
+          
+        case 'date':
+          if (!this.form.date) {
+            this.$set(this.errors, 'date', 'La fecha es obligatoria')
+          } else if (new Date(this.form.date) < new Date().setHours(0,0,0,0)) {
+            this.$set(this.errors, 'date', 'La fecha no puede ser en el pasado')
+          }
+          break
+      }
+    },
+    
+    validateForm() {
+      this.errors = {}
+      this.validateField('title')
+      this.validateField('date')
+      return Object.keys(this.errors).length === 0
+    },
+    
+    async handleSubmit() {
+      if (!this.validateForm()) {
+        this.showFirstError()
+        return
       }
       
-      const eventData = {
-        id: this.formData.id,
-        title: this.formData.title,
-        start: startDateTime,
-        end: endDateTime,
-        description: this.formData.description,
-        color: this.formData.color
-      };
+      this.saving = true
       
-      console.log('Guardando evento:', eventData);
-      this.$emit('save', eventData);
-    },
-    confirmDelete() {
-      if (confirm('¿Estás seguro de que deseas eliminar este evento?')) {
-        this.$emit('delete', this.formData.id);
+      try {
+        await new Promise(resolve => setTimeout(resolve, 500))
+        this.$emit('save', { ...this.form })
+      } catch (error) {
+        console.error('Error al guardar:', error)
+      } finally {
+        this.saving = false
       }
+    },
+    
+    handleDelete() {
+      this.$emit('delete', this.event.id)
+    },
+    
+    showFirstError() {
+      const firstErrorField = Object.keys(this.errors)[0]
+      if (firstErrorField) {
+        const element = document.getElementById(`event-${firstErrorField}`)
+        if (element) {
+          element.focus()
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }
+    },
+    
+    resetForm() {
+      this.form = {
+        title: '',
+        date: this.selectedDate || new Date().toISOString().split('T')[0],
+        time: '',
+        color: '#4a6fa5',
+        description: ''
+      }
+      this.errors = {}
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.event-form-container {
-  background-color: #f5f5f5;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  
-  @media (min-width: 768px) {
-    flex: 1;
-    max-width: 400px;
+@import '../assets/styles/main.scss';
+
+.event-form {
+  &-header {
+    padding: 25px 30px;
+    border-bottom: 1px solid $border-color;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, $primary-color 0%, darken($primary-color, 10%) 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+
+    h3 {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  &-body {
+    padding: 30px;
+    
+    @include respond-to('mobile') {
+      padding: 20px;
+    }
+  }
+
+  &-footer {
+    padding: 20px 30px;
+    border-top: 1px solid $border-color;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    background-color: $light-color;
+    border-radius: 0 0 12px 12px;
+    
+    @include respond-to('mobile') {
+      padding: 15px 20px;
+      flex-wrap: wrap;
+      
+      .btn {
+        flex: 1;
+        min-width: 120px;
+      }
+    }
   }
 }
 
-.event-form {
-  h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: #2c3e50;
-  }
+// Animaciones para errores
+.form-control.error {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+// Mejoras visuales para el formulario
+.form-group {
+  position: relative;
   
-  .form-group {
-    margin-bottom: 15px;
-    
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #333;
+  .form-control {
+    &:focus {
+      transform: translateY(-1px);
     }
     
-    input, textarea {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 1rem;
-      
-      &:focus {
-        outline: none;
-        border-color: #42b983;
-      }
-      
-      &:disabled {
-        background-color: #f8f9fa;
-        cursor: not-allowed;
-      }
+    &.error {
+      border-color: $danger-color;
+      box-shadow: 0 0 0 3px rgba($danger-color, 0.1);
     }
   }
   
-  .form-row {
-    display: flex;
-    gap: 10px;
-    
-    .form-group {
-      flex: 1;
-    }
+  .error-message {
+    animation: fadeIn 0.3s ease-out;
   }
-  
-  .form-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
+}
+
+.color-picker {
+  .color-option {
+    position: relative;
     
-    .btn {
-      padding: 10px 15px;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      
-      &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-      }
-      
-      &.btn-cancel {
-        background-color: #f8f9fa;
-        color: #333;
-        
-        &:hover:not(:disabled) {
-          background-color: #e2e6ea;
-        }
-      }
-      
-      &.btn-delete {
-        background-color: #dc3545;
-        color: white;
-        
-        &:hover:not(:disabled) {
-          background-color: darken(#dc3545, 10%);
-        }
-      }
-      
-      &.btn-save {
-        background-color: #42b983;
-        color: white;
-        
-        &:hover:not(:disabled) {
-          background-color: darken(#42b983, 10%);
-        }
-      }
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 0;
+      height: 0;
+      background-color: white;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    
+    &.active::after {
+      width: 12px;
+      height: 12px;
     }
   }
 }

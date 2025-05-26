@@ -1,91 +1,284 @@
-/* Variables globales */
-:root {
-  --primary-color: #42b983;
-  --secondary-color: #2c3e50;
-  --background-color: #f8f9fa;
-  --text-color: #333;
-  --border-color: #ddd;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
+// Variables principales
+$primary-color: #4a6fa5;
+$secondary-color: #6c757d;
+$success-color: #28a745;
+$danger-color: #dc3545;
+$warning-color: #ffc107;
+$info-color: #17a2b8;
+$light-color: #f8f9fa;
+$dark-color: #343a40;
+$border-color: #e9ecef;
+$border-radius: 4px;
+$box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 
-/* Estilos globales */
-* {
-  box-sizing: border-box;
-}
+// Breakpoints para responsividad
+$breakpoints: (
+  'mobile': 480px,
+  'tablet': 768px,
+  'desktop': 1024px,
+  'large': 1200px
+);
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: var(--secondary-color);
-}
-
-a {
-  color: var(--primary-color);
-  text-decoration: none;
-  
-  &:hover {
-    text-decoration: underline;
+// ✅ MIXIN QUE FALTABA - respond-to
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (max-width: map-get($breakpoints, $breakpoint)) {
+      @content;
+    }
   }
 }
 
+// Otros mixins
+@mixin button-style($bg-color: $primary-color, $text-color: white) {
+  background-color: $bg-color;
+  color: $text-color;
+  border: none;
+  border-radius: $border-radius;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  
+  &:hover {
+    background-color: darken($bg-color, 10%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  &:disabled {
+    background-color: $secondary-color;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@mixin card-style {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: $box-shadow;
+  padding: 20px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@mixin form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid $border-color;
+  border-radius: $border-radius;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary-color;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.1);
+  }
+  
+  &.error {
+    border-color: $danger-color;
+    box-shadow: 0 0 0 3px rgba($danger-color, 0.1);
+  }
+}
+
+@mixin loading-spinner {
+  border: 3px solid $light-color;
+  border-top: 3px solid $primary-color;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+}
+
+// Animaciones
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+// Reset y estilos base
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: $dark-color;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+}
+
+// Utilidades
+.text-center { text-align: center; }
+.fade-in { animation: fadeIn 0.5s ease-out; }
+.slide-in { animation: slideIn 0.3s ease-out; }
+.pulse { animation: pulse 2s infinite; }
+
+// Contenedor principal
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 20px;
 }
 
-/* Botones */
+// Botones globales
 .btn {
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  
-  &.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    
-    &:hover {
-      background-color: darken(#42b983, 10%);
-    }
-  }
+  @include button-style();
   
   &.btn-secondary {
-    background-color: var(--secondary-color);
-    color: white;
-    border: none;
+    @include button-style($secondary-color);
+  }
+  
+  &.btn-success {
+    @include button-style($success-color);
+  }
+  
+  &.btn-danger {
+    @include button-style($danger-color);
+  }
+  
+  &.btn-primary {
+    @include button-style($primary-color);
+  }
+}
+
+// Loading spinner
+.loading-spinner {
+  @include loading-spinner;
+  margin: 20px auto;
+}
+
+// Notificaciones
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: $border-radius;
+  color: white;
+  font-weight: 500;
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+  &.success {
+    background-color: $success-color;
+  }
+  
+  &.error {
+    background-color: $danger-color;
+  }
+  
+  &.warning {
+    background-color: $warning-color;
+    color: $dark-color;
+  }
+  
+  &.info {
+    background-color: $info-color;
+  }
+}
+
+// Formularios
+.form-group {
+  margin-bottom: 25px;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: $dark-color;
+    font-size: 1rem;
+  }
+
+  .form-control {
+    @include form-input;
+  }
+  
+  .error-message {
+    color: $danger-color;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: block;
+  }
+  
+  .char-counter {
+    color: $secondary-color;
+    font-size: 0.8rem;
+    text-align: right;
+    margin-top: 5px;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  
+  @include respond-to('mobile') {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Color picker
+.color-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  
+  .color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
     
     &:hover {
-      background-color: darken(#2c3e50, 10%);
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    &.active {
+      border-color: $dark-color;
+      transform: scale(1.15);
     }
   }
 }
 
-/* Formularios */
-input, textarea, select {
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  font-size: 1rem;
-  
-  &:focus {
-    outline: none;
-    border-color: var(--primary-color);
+// Responsive helpers
+@include respond-to('mobile') {
+  .hide-mobile {
+    display: none !important;
   }
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .container {
-    padding: 0 15px;
+@include respond-to('tablet') {
+  .hide-tablet {
+    display: none !important;
   }
 }
