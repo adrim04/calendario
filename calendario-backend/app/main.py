@@ -5,7 +5,6 @@ from typing import List
 from . import crud, models, schemas
 from .database import engine, get_db
 
-
 # Crear las tablas en la base de datos
 models.Base.metadata.create_all(bind=engine)
 
@@ -53,6 +52,14 @@ def create_event(event: schemas.EventCreate, db: Session = Depends(get_db)):
 @app.put("/events/{event_id}", response_model=schemas.Event)
 def update_event(event_id: int, event: schemas.EventUpdate, db: Session = Depends(get_db)):
     db_event = crud.update_event(db=db, event_id=event_id, event=event)
+    if db_event is None:
+        raise HTTPException(status_code=404, detail="Evento no encontrado")
+    return db_event
+
+# NUEVO: Endpoint para marcar/desmarcar evento como completado
+@app.patch("/events/{event_id}/toggle-complete", response_model=schemas.Event)
+def toggle_event_complete(event_id: int, toggle_data: schemas.EventToggleComplete, db: Session = Depends(get_db)):
+    db_event = crud.toggle_event_complete(db=db, event_id=event_id, completed=toggle_data.completed)
     if db_event is None:
         raise HTTPException(status_code=404, detail="Evento no encontrado")
     return db_event

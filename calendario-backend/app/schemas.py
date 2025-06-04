@@ -9,6 +9,7 @@ class EventBase(BaseModel):
     end: datetime
     description: Optional[str] = None
     color: Optional[str] = "#3788d8"
+    completed: Optional[bool] = False  # NUEVO: Campo para completado
 
 # Esquema para crear eventos
 class EventCreate(EventBase):
@@ -21,6 +22,7 @@ class EventUpdate(BaseModel):
     end: Optional[datetime] = None
     description: Optional[str] = None
     color: Optional[str] = None
+    completed: Optional[bool] = None  # NUEVO: Permitir actualizar estado completado
 
 # Esquema para respuesta de eventos
 class Event(EventBase):
@@ -31,3 +33,7 @@ class Event(EventBase):
     class Config:
         orm_mode = True
         from_attributes = True  # Para versiones recientes de Pydantic
+
+# NUEVO: Esquema específico para cambiar estado de completado
+class EventToggleComplete(BaseModel):
+    completed: bool

@@ -1,6 +1,7 @@
 import axios from "axios"
 
-const API_URL = "http://localhost:8000"
+const API_URL = "http://192.168.100.17:8000"; // la IP de red local de tu PC
+
 
 // Para depurar, añade un timeout más largo
 axios.defaults.timeout = 10000 // 10 segundos
@@ -9,12 +10,10 @@ const api = {
   // Obtener todos los eventos
   getEvents: async () => {
     try {
-      console.log("Intentando conectar a:", API_URL)
       const response = await axios.get(`${API_URL}/events/`)
-      console.log("Respuesta recibida:", response.data)
       return response.data
     } catch (error) {
-      console.error("Error al obtener eventos:", error.message, error.response?.status)
+      console.error("Error al obtener eventos:", error.message)
       throw error
     }
   },
@@ -48,6 +47,19 @@ const api = {
       return response.data
     } catch (error) {
       console.error(`Error al actualizar el evento ${id}:`, error)
+      throw error
+    }
+  },
+
+  // NUEVO: Marcar/desmarcar evento como completado
+  toggleEventComplete: async (id, completed) => {
+    try {
+      const response = await axios.patch(`${API_URL}/events/${id}/toggle-complete`, {
+        completed: completed,
+      })
+      return response.data
+    } catch (error) {
+      console.error(`Error al cambiar estado del evento ${id}:`, error)
       throw error
     }
   },
