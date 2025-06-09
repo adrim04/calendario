@@ -148,27 +148,26 @@ export default {
   }
 }
 </script>
-
 <style lang="scss" scoped>
 .calendar-wrapper {
-  background-color: white;
+  background-color: #f0faff; // fondo celeste muy claro
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 50, 100, 0.1);
   padding: 20px;
 
   :deep(.fc) {
     .fc-button-primary {
-      background-color: #42b983;
-      border-color: #42b983;
+      background-color: #8fcdfc; 
+      border-color: #a5d8ff;
 
       &:hover {
-        background-color: darken(#42b983, 10%);
-        border-color: darken(#42b983, 10%);
+        background-color: darken(#a5d8ff, 10%);
+        border-color: darken(#a5d8ff, 10%);
       }
 
       &:disabled {
-        background-color: lighten(#42b983, 20%);
-        border-color: lighten(#42b983, 20%);
+        background-color: lighten(#a5d8ff, 20%);
+        border-color: lighten(#a5d8ff, 20%);
       }
     }
 
@@ -176,6 +175,8 @@ export default {
       cursor: pointer;
       border-radius: 3px;
       margin: 1px 0;
+      background-color: #d0f0ff; 
+      border: 1px solid #b0e0ff;
 
       &:hover {
         opacity: 0.9;
@@ -186,19 +187,22 @@ export default {
     .completed-event {
       .fc-event-title {
         text-decoration: line-through;
-        opacity: 0.7;
+        opacity: 0.6;
+        color: #6699aa;
       }
     }
 
     .fc-toolbar-title {
       font-size: 1.5rem;
-      color: #2c3e50;
+      color: #336677; 
     }
 
     /* Mejorar la visualización de eventos en vista de día */
     .fc-timegrid-event {
       border-radius: 3px;
       padding: 2px 4px;
+      background-color: #cceeff;
+      border: 1px solid #aaddff;
 
       .fc-event-time,
       .fc-event-title {
@@ -206,6 +210,7 @@ export default {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        color: #003344;
       }
     }
 
@@ -213,13 +218,14 @@ export default {
     .fc-timegrid-slot,
     .fc-timegrid-slot-lane {
       height: 40px !important;
-      /* Altura fija para las celdas de tiempo */
+      background-color: #f9fcff;
     }
 
     /* Mejorar la visualización de las horas */
     .fc-timegrid-axis {
       padding-right: 8px;
       text-align: right;
+      color: #5588aa;
     }
   }
 }

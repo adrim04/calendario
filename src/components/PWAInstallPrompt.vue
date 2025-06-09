@@ -62,16 +62,15 @@ export default {
     }
 }
 </script>
-
 <style lang="scss" scoped>
 .install-prompt {
     position: fixed;
     bottom: 20px;
     left: 20px;
     right: 20px;
-    background: white;
+    background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
     z-index: 1000;
     animation: slideUp 0.3s ease-out;
 
@@ -93,12 +92,12 @@ export default {
     flex-shrink: 0;
     width: 40px;
     height: 40px;
-    background: #42b983;
+    background: #a3e4c4; // verde pastel suave
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #ffffff;
 }
 
 .install-text {
@@ -133,11 +132,11 @@ export default {
         transition: all 0.2s;
 
         &.btn-install {
-            background: #42b983;
+            background: #a3e4c4; // mismo verde pastel
             color: white;
 
             &:hover {
-                background: darken(#42b983, 10%);
+                background: darken(#a3e4c4, 10%);
             }
         }
 
@@ -146,7 +145,7 @@ export default {
             color: #6c757d;
 
             &:hover {
-                background: #f8f9fa;
+                background: #f1f3f5;
             }
         }
     }

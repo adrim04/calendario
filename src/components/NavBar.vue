@@ -22,11 +22,11 @@ export default {
 
 <style lang="scss" scoped>
 .navbar {
-  background-color: #2c3e50;
-  color: white;
+  background-color: #b3d9f5; // azul pastel suave
+  color: #2c3e50; // azul oscuro legible
   padding: 10px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); // sombra más suave
+
   .navbar-container {
     display: flex;
     justify-content: space-between;
@@ -35,22 +35,23 @@ export default {
     margin: 0 auto;
     padding: 0 20px;
   }
-  
+
   .navbar-logo {
     display: flex;
     align-items: center;
-    
+
     .logo-img {
       height: 40px;
       margin-right: 10px;
     }
-    
+
     .logo-text {
       font-size: 1.5rem;
       font-weight: bold;
+      color: #2c3e50; // legible sobre fondo pastel
     }
   }
-  
+
   .navbar-actions {
     .btn {
       padding: 8px 16px;
@@ -58,13 +59,13 @@ export default {
       border: none;
       cursor: pointer;
       font-weight: bold;
-      
+
       &.btn-primary {
-        background-color: #42b983;
+        background-color: #6cbbe8; // azul pastel brillante
         color: white;
-        
+
         &:hover {
-          background-color: darken(#42b983, 10%);
+          background-color: darken(#6cbbe8, 10%);
         }
       }
     }

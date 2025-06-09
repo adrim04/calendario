@@ -170,7 +170,7 @@ export default {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: #dc3545;
+    background: #ee6c74; // rojo pastel suave
     color: white;
     padding: 8px 16px;
     border-radius: 20px;
@@ -181,7 +181,7 @@ export default {
     transition: all 0.2s ease;
 
     &:hover {
-        background: darken(#dc3545, 10%);
+        background: darken(#ee6c74, 10%);
         transform: translateX(-50%) scale(1.05);
     }
 }
@@ -191,7 +191,7 @@ export default {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: #17a2b8;
+    background: #6cbbe8; // azul pastel celeste
     color: white;
     padding: 8px 16px;
     border-radius: 20px;
@@ -225,17 +225,17 @@ export default {
 }
 
 .pending-count {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.25);
     border-radius: 10px;
     padding: 2px 6px;
     font-size: 0.75rem;
     min-width: 20px;
     text-align: center;
     font-weight: bold;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.35);
 }
 
-// Estilos para la notificación de sincronización
+/* Estilos para la notificación de sincronización */
 :deep(.sync-notification) {
     .sync-notification-content {
         display: flex;
@@ -244,7 +244,7 @@ export default {
     }
 }
 
-// Animaciones
+/* Animaciones */
 @keyframes slideDown {
     from {
         transform: translateX(-50%) translateY(-100%);
@@ -291,7 +291,7 @@ export default {
     }
 }
 
-// Responsive
+/* Responsive */
 @media (max-width: 480px) {
 
     .offline-indicator,
@@ -313,7 +313,7 @@ export default {
     }
 }
 
-// Mejoras de accesibilidad
+/* Accesibilidad: reducir animaciones si el usuario lo prefiere */
 @media (prefers-reduced-motion: reduce) {
 
     .offline-indicator,

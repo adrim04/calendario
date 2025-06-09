@@ -42,7 +42,7 @@ export default {
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(240, 250, 255, 0.9); // azul pastel muy claro
         z-index: 9999;
     }
 }
@@ -68,15 +68,15 @@ export default {
 }
 
 .spinner-circle {
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #42b983;
+    border: 3px solid #e0f2fa; 
+    border-top: 3px solid #6cbbe8; 
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }
 
 .loading-message {
     margin: 0;
-    color: #6c757d;
+    color: #5a7d8a; 
     font-size: 0.875rem;
     text-align: center;
 }

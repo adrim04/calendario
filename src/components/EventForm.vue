@@ -180,13 +180,12 @@ export default {
   }
 }
 </script>
-
 <style lang="scss" scoped>
 .event-form-container {
-  background-color: #f5f5f5;
+  background-color: #e8f6ff; // celeste muy claro
   border-radius: 8px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 50, 100, 0.1);
 
   @media (min-width: 768px) {
     flex: 1;
@@ -198,16 +197,15 @@ export default {
   h2 {
     margin-top: 0;
     margin-bottom: 20px;
-    color: #2c3e50;
+    color: #336677; // azul pastel oscuro
   }
 
-  // NUEVO: Estilos para el indicador de estado
   .completion-status {
-    background-color: white;
+    background-color: #f0faff;
     border-radius: 6px;
     padding: 15px;
     margin-bottom: 20px;
-    border: 2px solid #e9ecef;
+    border: 2px solid #cce7f6;
 
     .status-indicator {
       display: flex;
@@ -217,21 +215,21 @@ export default {
       .status-icon {
         font-size: 1.2rem;
         margin-right: 8px;
-        color: #6c757d;
+        color: #6c8da5; // azul grisáceo
       }
 
       .status-text {
         font-weight: bold;
-        color: #6c757d;
+        color: #6c8da5;
       }
 
       &.completed {
         .status-icon {
-          color: #28a745;
+          color: #4cb495; // verde pastel (suave para completado)
         }
 
         .status-text {
-          color: #28a745;
+          color: #4cb495;
         }
       }
     }
@@ -239,25 +237,25 @@ export default {
     .btn-toggle-complete {
       width: 100%;
       padding: 8px 12px;
-      border: 2px solid #6c757d;
+      border: 2px solid #6c8da5;
       background-color: white;
-      color: #6c757d;
+      color: #6c8da5;
       border-radius: 4px;
       cursor: pointer;
       font-weight: bold;
       transition: all 0.2s;
 
       &:hover:not(:disabled) {
-        background-color: #6c757d;
+        background-color: #6c8da5;
         color: white;
       }
 
       &.completed {
-        border-color: #28a745;
-        color: #28a745;
+        border-color: #4cb495;
+        color: #4cb495;
 
         &:hover:not(:disabled) {
-          background-color: #28a745;
+          background-color: #4cb495;
           color: white;
         }
       }
@@ -276,32 +274,31 @@ export default {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
-      color: #333;
+      color: #336677;
     }
 
     input,
     textarea {
       width: 100%;
       padding: 8px;
-      border: 1px solid #ddd;
+      border: 1px solid #aad8f0;
       border-radius: 4px;
       font-size: 1rem;
       transition: all 0.2s;
 
       &:focus {
         outline: none;
-        border-color: #42b983;
+        border-color: #7bcfff;
       }
 
       &:disabled {
-        background-color: #f8f9fa;
+        background-color: #f0faff;
         cursor: not-allowed;
       }
 
-      // NUEVO: Estilo para inputs de eventos completados
       &.completed-input {
-        background-color: #f8f9fa;
-        color: #6c757d;
+        background-color: #f0faff;
+        color: #6c8da5;
         text-decoration: line-through;
       }
     }
@@ -334,29 +331,29 @@ export default {
       }
 
       &.btn-cancel {
-        background-color: #f8f9fa;
-        color: #333;
+        background-color: #f0faff;
+        color: #336677;
 
         &:hover:not(:disabled) {
-          background-color: #e2e6ea;
+          background-color: #dbeefd;
         }
       }
 
       &.btn-delete {
-        background-color: #dc3545;
+        background-color: #ee6c74;
         color: white;
 
         &:hover:not(:disabled) {
-          background-color: darken(#dc3545, 10%);
+          background-color: darken(#ee6c74, 10%);
         }
       }
 
       &.btn-save {
-        background-color: #42b983;
+        background-color: #7bcfff; // celeste pastel más saturado
         color: white;
 
         &:hover:not(:disabled) {
-          background-color: darken(#42b983, 10%);
+          background-color: darken(#7bcfff, 10%);
         }
       }
     }
